@@ -1,4 +1,4 @@
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import ru.otus.spring.domain.Question;
 import ru.otus.spring.service.QuestionService;
 import ru.otus.spring.service.QuestionServiceImpl;
