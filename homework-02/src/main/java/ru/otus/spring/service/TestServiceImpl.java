@@ -1,22 +1,24 @@
 package ru.otus.spring.service;
 
+import org.springframework.stereotype.Service;
 import ru.otus.spring.dao.QuestionReader;
+import ru.otus.spring.dao.TextWriter;
 import ru.otus.spring.domain.Question;
 
-import java.io.PrintStream;
 import java.util.List;
 
+@Service("testService")
 public class TestServiceImpl implements TestService {
     private final Integer threshold;
     private final QuestionReader questionReader;
-    private final PrintStream resultWriter;
+    private final TextWriter textWriter;
     private final QuestionService questionService;
 
-    public TestServiceImpl(Integer threshold, QuestionReader questionReader, QuestionService questionService, PrintStream resultWriter) {
+    public TestServiceImpl(Integer threshold, QuestionReader questionReader, QuestionService questionService, TextWriter textWriter) {
         this.threshold = threshold;
         this.questionReader = questionReader;
         this.questionService = questionService;
-        this.resultWriter = resultWriter;
+        this.textWriter = textWriter;
     }
 
     @Override
@@ -25,9 +27,9 @@ public class TestServiceImpl implements TestService {
         questions.forEach(questionService::makeAnswerFor);
 
         if (isTestPassed(questions)) {
-            resultWriter.println("Test has been being passed");
+            textWriter.print("Test has been being passed");
         } else {
-            resultWriter.println("Test has not been being passed, try again.");
+            textWriter.print("Test has not been being passed, try again.");
         }
     }
 

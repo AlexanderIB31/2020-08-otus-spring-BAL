@@ -1,21 +1,17 @@
 package ru.otus.spring;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import ru.otus.spring.dao.AnswerReader;
-import ru.otus.spring.dao.AnswerReaderSimple;
-import ru.otus.spring.dao.QuestionReader;
-import ru.otus.spring.dao.QuestionReaderFile;
+import org.springframework.context.annotation.*;
+import ru.otus.spring.dao.*;
 import ru.otus.spring.service.QuestionService;
 import ru.otus.spring.service.QuestionServiceImpl;
 import ru.otus.spring.service.TestService;
 import ru.otus.spring.service.TestServiceImpl;
 
 import java.io.InputStream;
-import java.io.PrintStream;
 
+@EnableAspectJAutoProxy
+@ComponentScan
 @Configuration
 @PropertySource(value = "classpath:application.properties")
 public class AppConfig {
@@ -26,23 +22,18 @@ public class AppConfig {
     }
 
     @Bean
-    public InputStream inputStream() {
-        return System.in;
-    }
-
-    @Bean("resultWriter")
-    public PrintStream writer() {
-        return System.out;
+    public TextWriter textWriter() {
+        return new TextWriterConsole();
     }
 
     @Bean
-    public AnswerReader answerReader(InputStream inputStream) {
-        return new AnswerReaderSimple(inputStream);
+    public AnswerReader answerReader() {
+        return new AnswerReaderConsole();
     }
 
     @Bean
-    public QuestionService questionService(PrintStream resultWriter, AnswerReader answerReader) {
-        return new QuestionServiceImpl(resultWriter, answerReader);
+    public QuestionService questionService(TextWriter textWriter, AnswerReader answerReader) {
+        return new QuestionServiceImpl(textWriter, answerReader);
     }
 
     @Bean
@@ -51,7 +42,8 @@ public class AppConfig {
     }
 
     @Bean
-    public TestService testService(@Value("${question.threshold}") Integer threshold, QuestionReader questionReader, QuestionService questionService, PrintStream resultWriter) {
-        return new TestServiceImpl(threshold, questionReader, questionService, resultWriter);
+    public TestService testService(@Value("${question.threshold}") Integer threshold,
+                                   QuestionReader questionReader, QuestionService questionService, TextWriter textWriter) {
+        return new TestServiceImpl(threshold, questionReader, questionService, textWriter);
     }
 }
