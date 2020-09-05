@@ -22,4 +22,4 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-/homework-01/dependency-reduced-pom.xml
+**/dependency-reduced-pom.xml
