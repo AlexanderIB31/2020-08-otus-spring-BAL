@@ -1,10 +1,12 @@
 package ru.otus.spring.dao;
 
+import org.springframework.stereotype.Component;
 import ru.otus.spring.domain.Answer;
 import ru.otus.spring.domain.Question;
 
 import java.util.Scanner;
 
+@Component
 public class AnswerReaderConsole implements AnswerReader {
     @Override
     public Answer read(Question question) {

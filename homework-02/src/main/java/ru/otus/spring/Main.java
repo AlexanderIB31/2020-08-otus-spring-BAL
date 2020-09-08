@@ -1,13 +1,15 @@
 package ru.otus.spring;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import ru.otus.spring.service.TestService;
+import ru.otus.spring.service.ExamService;
+
+import java.io.IOException;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         var context = new AnnotationConfigApplicationContext(AppConfig.class);
-        var testService = context.getBean(TestService.class);
-        testService.run();
+        var examService = context.getBean(ExamService.class);
+        examService.run();
     }
 }

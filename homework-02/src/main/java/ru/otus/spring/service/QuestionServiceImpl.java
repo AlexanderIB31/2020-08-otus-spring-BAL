@@ -1,15 +1,17 @@
 package ru.otus.spring.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.otus.spring.dao.AnswerReader;
 import ru.otus.spring.dao.TextWriter;
 import ru.otus.spring.domain.Question;
 
-@Service("questionService")
+@Service
 public class QuestionServiceImpl implements QuestionService {
     private final TextWriter textWriter;
     private final AnswerReader answerReader;
 
+    @Autowired
     public QuestionServiceImpl(TextWriter textWriter, AnswerReader answerReader) {
         this.textWriter = textWriter;
         this.answerReader = answerReader;

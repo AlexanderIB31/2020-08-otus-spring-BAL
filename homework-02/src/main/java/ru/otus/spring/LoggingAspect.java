@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoggingAspect {
 
-    private static Logger logger = LogManager.getLogger("LOGFILE");
+    private static final Logger LOGGER = LogManager.getLogger("LOGFILE");
 
     @Before("@target(org.springframework.stereotype.Service)")
     public void logBefore(JoinPoint joinPoint) {
-        logger.info("Start method: " + joinPoint.getSignature().getName());
+        LOGGER.info("Start method: " + joinPoint.getSignature().getName());
     }
 }

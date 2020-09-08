@@ -1,20 +1,24 @@
 package ru.otus.spring.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.otus.spring.dao.QuestionReader;
 import ru.otus.spring.dao.TextWriter;
 import ru.otus.spring.domain.Question;
 
+import java.io.IOException;
 import java.util.List;
 
-@Service("testService")
-public class TestServiceImpl implements TestService {
+@Service
+public class ExamServiceImpl implements ExamService {
     private final Integer threshold;
     private final QuestionReader questionReader;
     private final TextWriter textWriter;
     private final QuestionService questionService;
 
-    public TestServiceImpl(Integer threshold, QuestionReader questionReader, QuestionService questionService, TextWriter textWriter) {
+    @Autowired
+    public ExamServiceImpl(@Value("${question.threshold}") Integer threshold, QuestionReader questionReader, QuestionService questionService, TextWriter textWriter) {
         this.threshold = threshold;
         this.questionReader = questionReader;
         this.questionService = questionService;
@@ -22,7 +26,7 @@ public class TestServiceImpl implements TestService {
     }
 
     @Override
-    public void run() {
+    public void run() throws IOException {
         List<Question> questions = questionReader.read();
         questions.forEach(questionService::makeAnswerFor);
 
