@@ -24,7 +24,7 @@ public class QuestionsBuilder {
 
     public QuestionsBuilder addQuestionWithCorrectUserAnswer() {
         Question question = new Question("");
-        Answer answer = new Answer();
+        Answer answer = new Answer(0);
         question.getAnswers().add(answer);
         question.setUserAnswer(answer);
 

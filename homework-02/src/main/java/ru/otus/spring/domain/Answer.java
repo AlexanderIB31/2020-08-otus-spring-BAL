@@ -1,13 +1,13 @@
 package ru.otus.spring.domain;
 
 public class Answer {
-    private Integer value;
+    private final Integer value;
+
+    public Answer(Integer value) {
+        this.value = value;
+    }
 
     public Integer getValue() {
         return value;
-    }
-
-    public void setValue(Integer value) {
-        this.value = value;
     }
 }

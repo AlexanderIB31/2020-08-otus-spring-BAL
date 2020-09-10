@@ -34,11 +34,7 @@ public class QuestionReaderFile implements QuestionReader {
                     .stream()
                     .skip(1)
                     .filter(Objects::nonNull)
-                    .map(x -> {
-                        var a = new Answer();
-                        a.setValue(Integer.parseInt(x));
-                        return a;
-                    })
+                    .map(x -> new Answer(Integer.parseInt(x)))
                     .collect(Collectors.toList()));
             result.add(newQuestion);
         }
