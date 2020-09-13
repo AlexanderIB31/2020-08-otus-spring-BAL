@@ -1,0 +1,3 @@
+question:
+  uri: test.csv
+  threshold: 3
