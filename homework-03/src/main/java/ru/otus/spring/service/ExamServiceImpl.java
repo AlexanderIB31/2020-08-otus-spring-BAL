@@ -9,14 +9,14 @@ import ru.otus.spring.localization.Translator;
 public class ExamServiceImpl implements ExamService {
     private final TextWriter textWriter;
     private final QuestionService questionService;
+    private final Translator translator;
     private final Props props;
-    private final Translator translator2Ru;
 
-    public ExamServiceImpl(Props props, QuestionService questionService, TextWriter textWriter, Translator translator2Ru) {
-        this.props = props;
+    public ExamServiceImpl(QuestionService questionService, TextWriter textWriter, Translator translator, Props props) {
         this.questionService = questionService;
         this.textWriter = textWriter;
-        this.translator2Ru = translator2Ru;
+        this.translator = translator;
+        this.props = props;
     }
 
     @Override
@@ -33,9 +33,9 @@ public class ExamServiceImpl implements ExamService {
         questionService.getQuestions().forEach(questionService::makeAnswerFor);
 
         if (isTestPassed()) {
-            textWriter.print(translator2Ru.getMessage("test.passed"));
+            textWriter.print(translator.getMessage("test.passed"));
         } else {
-            textWriter.print(translator2Ru.getMessage("test.notPassed"));
+            textWriter.print(translator.getMessage("test.notPassed"));
         }
     }
 }

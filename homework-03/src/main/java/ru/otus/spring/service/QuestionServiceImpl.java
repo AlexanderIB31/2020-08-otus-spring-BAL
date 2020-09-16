@@ -15,14 +15,14 @@ import java.util.List;
 public class QuestionServiceImpl implements QuestionService {
     private final TextWriter textWriter;
     private final Reader readerConsole;
-    private final Translator translator2Ru;
+    private final Translator translator;
 
     private final List<Question> questions;
 
-    public QuestionServiceImpl(TextWriter textWriter, Reader readerConsole, QuestionReader questionReader, Translator translator2Ru) throws IOException {
+    public QuestionServiceImpl(TextWriter textWriter, Reader readerConsole, Translator translator, QuestionReader questionReader) throws IOException {
         this.textWriter = textWriter;
         this.readerConsole = readerConsole;
-        this.translator2Ru = translator2Ru;
+        this.translator = translator;
 
         questions = questionReader.read();
     }
@@ -30,7 +30,7 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Loggable
     public Question makeAnswerFor(Question question) {
-        textWriter.print(translator2Ru.getMessage(question.getText()));
+        textWriter.print(translator.getMessage(question.getText()));
         for (int i = 1; i <= question.getAnswers().size(); ++i) {
             textWriter.print(i + ". " + question.getAnswers().get(i - 1).getValue());
         }

@@ -8,7 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.otus.spring.Props;
 import ru.otus.spring.QuestionsBuilder;
 import ru.otus.spring.dao.TextWriter;
-import ru.otus.spring.localization.Translator;
+import ru.otus.spring.localization.PropsTranslator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -21,13 +21,13 @@ public class ExamServiceImplTest {
     private Props props;
 
     @MockBean
+    private PropsTranslator translator;
+
+    @MockBean
     private QuestionService questionService;
 
     @MockBean
     private TextWriter textWriter;
-
-    @MockBean(name = "translator2Ru")
-    private Translator translator;
 
     @Autowired
     private ExamService examService;
