@@ -1,4 +1,6 @@
 target/
+**/dependency-reduced-pom.xml
+**/logs
 
 ### STS ###
 .apt_generated
@@ -22,4 +24,3 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-/homework-01/dependency-reduced-pom.xml
