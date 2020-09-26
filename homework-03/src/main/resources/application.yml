@@ -1,0 +1,4 @@
+question:
+  uri: test.csv
+  threshold: 3
+  locale: ru_RU
