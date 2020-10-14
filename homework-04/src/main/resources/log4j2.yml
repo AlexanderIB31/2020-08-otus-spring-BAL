@@ -1,0 +1,32 @@
+Configuration:
+  name: Default
+
+  Properties:
+    Property:
+      name: log-path
+      value: "logs"
+
+  Appenders:
+    File:
+      name: FILE
+      fileName: ${log-path}/app.log
+      PatternLayout:
+        pattern: "%d [%t] %-5p %c - %m%n"
+    Console:
+      name: STDOUT
+      target: SYSTEM_OUT
+      PatternLayout:
+        pattern: "%d [%t] %-5p %c - %m%n"
+
+  Loggers:
+
+    Logger:
+      - name: ru.otus.spring.aop.LoggingAspect
+        additivity: false
+        level: info
+        AppenderRef:
+          - ref: FILE
+    Root:
+      level: error
+      AppenderRef:
+        ref: STDOUT

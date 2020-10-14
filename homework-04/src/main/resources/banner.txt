@@ -1,0 +1,7 @@
+${AnsiColor.BRIGHT_BLACK}
+${AnsiBackground.RED}________         ______                    ${AnsiBackground.DEFAULT}
+${AnsiBackground.BLUE}___  __ )______ ____  /_____ ________      ${AnsiBackground.DEFAULT}
+${AnsiBackground.YELLOW}__  __  |_  __ `/__  / _  _ \__  ___/      ${AnsiBackground.DEFAULT}
+${AnsiBackground.GREEN}_  /_/ / / /_/ / _  /  /  __/_(__  )       ${AnsiBackground.DEFAULT}
+${AnsiBackground.MAGENTA}/_____/  \__,_/  /_/   \___/ /____/        ${AnsiBackground.DEFAULT}
+${AnsiColor.DEFAULT}
