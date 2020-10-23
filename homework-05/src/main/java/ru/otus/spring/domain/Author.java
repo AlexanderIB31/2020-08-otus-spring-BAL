@@ -1,17 +1,16 @@
 package ru.otus.spring.domain;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
+import lombok.ToString;
 
 @RequiredArgsConstructor
 @Data
-//@ToString(exclude = "bookIds")
-//@EqualsAndHashCode(exclude = "bookIds")
+@EqualsAndHashCode(exclude = "booksRef")
+@ToString(exclude = "booksRef")
 public class Author {
     private final long id;
     private final String name;
-    private List<Book> books = new ArrayList<>();
+    private BooksRef booksRef;
 }

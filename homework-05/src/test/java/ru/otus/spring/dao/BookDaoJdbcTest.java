@@ -5,8 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
-import ru.otus.spring.domain.Book;
+import ru.otus.spring.domain.*;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +41,9 @@ public class BookDaoJdbcTest {
     @DisplayName("должен добавлять новую книгу в таблицу")
     @Test
     void shouldInsertBookWithUniqIdAndNameIsRobinHoodAndAuthorIdIs1AndGenreIdIs1() {
-        Book book = new Book(2, "Robin Hood", 1, 1);
+        Author author = new Author(1, "Masha");
+        Genre genre = new Genre(1, "Humor");
+        Book book = new Book(2, "Robin Hood", new AuthorRef((authId) -> author, author.getId()), new GenreRef((genId) -> genre, genre.getId()));
         bookDaoJdbc.insert(book);
 
         Book bookInserted = bookDaoJdbc.getById(book.getId());
@@ -61,8 +64,10 @@ public class BookDaoJdbcTest {
     @DisplayName("должен возвращать все книги")
     @Test
     void shouldReturnCountBooksIs2ThereAreTheAdventuresOfTomSawyerAndRobinHood() {
-        Book theAdventuresOfTomSawyer = new Book(1, "The Adventures of Tom Sawyer", 1, 1);
-        Book robinHood = new Book(2, "Robin Hood", 1, 1);
+        Author author = new Author(1, "Masha");
+        Genre genre = new Genre(1, "Humor");
+        Book theAdventuresOfTomSawyer = new Book(1, "The Adventures of Tom Sawyer", new AuthorRef((authId) -> author, author.getId()), new GenreRef((genId) -> genre, genre.getId()));
+        Book robinHood = new Book(2, "Robin Hood", new AuthorRef((authId) -> author, author.getId()), new GenreRef((genId) -> genre, genre.getId()));
         bookDaoJdbc.insert(robinHood);
 
         List<Book> books = bookDaoJdbc.getAll();
@@ -112,11 +117,33 @@ public class BookDaoJdbcTest {
     @DisplayName("должен обновить название книги")
     @Test
     void shouldUpdateBookNameFromTheAdventuresOfTomSawyerToRobinHood() {
-        Book nBook = new Book(EXPECTED_BOOK_ID, "Robin Hood", 1, 1);
+        Author author = new Author(1, "Masha");
+        Genre genre = new Genre(1, "Humor");
+        Book nBook = new Book(EXPECTED_BOOK_ID, "Robin Hood", new AuthorRef((authId) -> author, author.getId()), new GenreRef((genId) -> genre, genre.getId()));
         bookDaoJdbc.updateById(EXPECTED_BOOK_ID, nBook);
 
         Book updatedBook = bookDaoJdbc.getById(EXPECTED_BOOK_ID);
 
         assertThat(updatedBook).isEqualTo(nBook);
+    }
+
+    @DisplayName("должен вернуть книгу The Adventures Of Tom Sawyer после вызова метода getByAuthorIds([1])")
+    @Test
+    void shouldReturnTheAdventuresOfTomSawyerBook_AfterGetByAuthorIdsIs1() {
+        List<Book> books = bookDaoJdbc.getByAuthorIds(Collections.singletonList(1L));
+
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isEqualTo(1);
+        assertThat(books.get(0).getName()).isEqualTo(EXPECTED_BOOK_NAME);
+    }
+
+    @DisplayName("должен вернуть книгу The Adventures Of Tom Sawyer после вызова метода getByGenreIds([1])")
+    @Test
+    void shouldReturnTheAdventuresOfTomSawyerBook_AfterGetByGenreIdsIs1() {
+        List<Book> books = bookDaoJdbc.getByGenreIds(Collections.singletonList(1L));
+
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isEqualTo(1);
+        assertThat(books.get(0).getName()).isEqualTo(EXPECTED_BOOK_NAME);
     }
 }

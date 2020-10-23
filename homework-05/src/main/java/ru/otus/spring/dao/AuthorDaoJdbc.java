@@ -1,33 +1,31 @@
 package ru.otus.spring.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
 import ru.otus.spring.domain.Author;
-import ru.otus.spring.domain.Book;
+import ru.otus.spring.domain.BooksRef;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"SqlNoDataSourceInspection", "ConstantConditions", "SqlDialectInspection"})
+@SuppressWarnings({"ConstantConditions", "SqlDialectInspection"})
 @Repository
 @Slf4j
 public class AuthorDaoJdbc implements AuthorDao {
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final BookDao bookDao;
+    private final BookDao bookDaoJdbc;
 
-    public AuthorDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, BookDao bookDao)
+    public AuthorDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, @Lazy BookDao bookDaoJdbc)
     {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.bookDao = bookDao;
+        this.bookDaoJdbc = bookDaoJdbc;
     }
 
     @Override
@@ -54,9 +52,12 @@ public class AuthorDaoJdbc implements AuthorDao {
     public Author getById(long id) {
         try {
             Map<String, Object> params = Collections.singletonMap("id", id);
-            return namedParameterJdbcOperations.queryForObject(
-                    "select * from authors where id = :id", params, new AuthorMapper(bookDao)
+            Author author = namedParameterJdbcOperations.queryForObject(
+                    "select id, name from authors where id = :id", params, new AuthorMapper()
             );
+            BooksRef booksRef = new BooksRef(bookDaoJdbc::getByAuthorIds, Collections.singletonList(author.getId()));
+            author.setBooksRef(booksRef);
+            return author;
         }
         catch (EmptyResultDataAccessException e) {
             return null;
@@ -67,9 +68,12 @@ public class AuthorDaoJdbc implements AuthorDao {
     public Author getByName(String name) {
         try {
             Map<String, Object> params = Collections.singletonMap("name", name);
-            return namedParameterJdbcOperations.queryForObject(
-                    "select * from authors where name = :name", params, new AuthorMapper(bookDao)
+            Author author = namedParameterJdbcOperations.queryForObject(
+                    "select id, name from authors where name = :name", params, new AuthorMapper()
             );
+            BooksRef booksRef = new BooksRef(bookDaoJdbc::getByAuthorIds, Collections.singletonList(author.getId()));
+            author.setBooksRef(booksRef);
+            return author;
         }
         catch (EmptyResultDataAccessException e) {
             return null;
@@ -79,7 +83,10 @@ public class AuthorDaoJdbc implements AuthorDao {
     @Override
     public List<Author> getAll() {
         try {
-            return namedParameterJdbcOperations.query("select * from authors", new AuthorMapper(bookDao));
+            List<Author> authors = namedParameterJdbcOperations.query("select id, name from authors", new AuthorMapper());
+            BooksRef booksRef = new BooksRef(bookDaoJdbc::getByAuthorIds, authors.stream().map(Author::getId).collect(Collectors.toList()));
+            authors.forEach(a -> a.setBooksRef(booksRef));
+            return authors;
         }
         catch (EmptyResultDataAccessException e) {
             return null;
@@ -115,20 +122,12 @@ public class AuthorDaoJdbc implements AuthorDao {
     }
 
     private static class AuthorMapper implements RowMapper<Author> {
-        private final BookDao bookDao;
-
-        private AuthorMapper(BookDao bookDao) {
-            this.bookDao = bookDao;
-        }
 
         @Override
         public Author mapRow(ResultSet resultSet, int i) throws SQLException {
             long id = resultSet.getLong("id");
             String name = resultSet.getString("name");
-            List<Book> books = bookDao.getAll().stream().filter(x -> x.getAuthorId() == id).collect(Collectors.toList());
-            Author author = new Author(id, name);
-            author.setBooks(books);
-            return author;
+            return new Author(id, name);
         }
     }
 }

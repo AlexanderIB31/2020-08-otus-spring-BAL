@@ -1,11 +1,12 @@
 package ru.otus.spring.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
-import ru.otus.spring.domain.Book;
+import ru.otus.spring.domain.BooksRef;
 import ru.otus.spring.domain.Genre;
 
 import java.sql.ResultSet;
@@ -16,18 +17,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"SqlNoDataSourceInspection", "ConstantConditions", "SqlDialectInspection"})
+@SuppressWarnings({"ConstantConditions", "SqlDialectInspection"})
 @Repository
 @Slf4j
 public class GenreDaoJdbc implements GenreDao {
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
-    private final BookDao bookDao;
+    private final BookDao bookDaoJdbc;
 
-    public GenreDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, BookDao bookDao)
+    public GenreDaoJdbc(NamedParameterJdbcOperations namedParameterJdbcOperations, @Lazy BookDao bookDaoJdbc)
     {
         this.namedParameterJdbcOperations = namedParameterJdbcOperations;
-        this.bookDao = bookDao;
+        this.bookDaoJdbc = bookDaoJdbc;
     }
 
     @Override
@@ -54,9 +55,12 @@ public class GenreDaoJdbc implements GenreDao {
     public Genre getById(long id) {
         try {
             Map<String, Object> params = Collections.singletonMap("id", id);
-            return namedParameterJdbcOperations.queryForObject(
-                    "select * from genres where id = :id", params, new GenreMapper(bookDao)
+            Genre genre = namedParameterJdbcOperations.queryForObject(
+                    "select id, name from genres where id = :id", params, new GenreMapper()
             );
+            BooksRef booksRef = new BooksRef(bookDaoJdbc::getByAuthorIds, Collections.singletonList(genre.getId()));
+            genre.setBooksRef(booksRef);
+            return genre;
         }
         catch (EmptyResultDataAccessException e) {
             return null;
@@ -67,9 +71,12 @@ public class GenreDaoJdbc implements GenreDao {
     public Genre getByName(String name) {
         try {
             Map<String, Object> params = Collections.singletonMap("name", name);
-            return namedParameterJdbcOperations.queryForObject(
-                    "select * from genres where name = :name", params, new GenreMapper(bookDao)
+            Genre genre = namedParameterJdbcOperations.queryForObject(
+                    "select id, name from genres where name = :name", params, new GenreMapper()
             );
+            BooksRef booksRef = new BooksRef(bookDaoJdbc::getByAuthorIds, Collections.singletonList(genre.getId()));
+            genre.setBooksRef(booksRef);
+            return genre;
         }
         catch (EmptyResultDataAccessException e) {
             return null;
@@ -79,7 +86,10 @@ public class GenreDaoJdbc implements GenreDao {
     @Override
     public List<Genre> getAll() {
         try {
-            return namedParameterJdbcOperations.query("select * from genres", new GenreMapper(bookDao));
+            List<Genre> genres = namedParameterJdbcOperations.query("select id, name from genres", new GenreMapper());
+            BooksRef booksRef = new BooksRef(bookDaoJdbc::getByAuthorIds, genres.stream().map(Genre::getId).collect(Collectors.toList()));
+            genres.forEach(g -> g.setBooksRef(booksRef));
+            return genres;
         }
         catch (EmptyResultDataAccessException e) {
             return null;
@@ -115,20 +125,12 @@ public class GenreDaoJdbc implements GenreDao {
     }
 
     private static class GenreMapper implements RowMapper<Genre> {
-        private final BookDao bookDao;
-
-        private GenreMapper(BookDao bookDao) {
-            this.bookDao = bookDao;
-        }
 
         @Override
         public Genre mapRow(ResultSet resultSet, int i) throws SQLException {
             long id = resultSet.getLong("id");
             String name = resultSet.getString("name");
-            List<Book> books = bookDao.getAll().stream().filter(x -> x.getGenreId() == id).collect(Collectors.toList());
-            Genre genre = new Genre(id, name);
-            genre.setBooks(books);
-            return genre;
+            return new Genre(id, name);
         }
     }
 }
