@@ -1,7 +1,7 @@
 target/
 **/dependency-reduced-pom.xml
 **/logs
-**/spring-shell.log
+*.log
 
 ### STS ###
 .apt_generated
