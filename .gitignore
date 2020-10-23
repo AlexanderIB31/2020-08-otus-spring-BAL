@@ -1,6 +1,7 @@
 target/
 **/dependency-reduced-pom.xml
 **/logs
+*.log
 
 ### STS ###
 .apt_generated
