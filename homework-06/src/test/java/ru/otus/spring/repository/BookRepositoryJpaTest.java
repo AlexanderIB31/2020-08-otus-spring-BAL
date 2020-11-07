@@ -1,4 +1,4 @@
-package ru.otus.spring.dao;
+package ru.otus.spring.repository;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,8 +9,6 @@ import org.springframework.context.annotation.Import;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Genre;
-import ru.otus.spring.repository.BookRepository;
-import ru.otus.spring.repository.BookRepositoryJpa;
 
 import java.util.List;
 
@@ -43,9 +41,13 @@ public class BookRepositoryJpaTest {
     @Test
     void shouldInsertBookWithUniqIdAndNameIsRobinHoodAndAuthorIdIs1AndGenreIdIs1() {
         Book book = new Book();
+        Author author = em.find(Author.class, 1L);
+        Genre genre = em.find(Genre.class, 1L);
         book.setName("Robin Hood");
-        bookRepositoryJpa.insert(book);
+        book.setGenre(genre);
+        book.setAuthor(author);
 
+        bookRepositoryJpa.insert(book);
         Book bookInserted = bookRepositoryJpa.getById(book.getId());
 
         assertThat(bookInserted).isEqualTo(book);
@@ -65,11 +67,12 @@ public class BookRepositoryJpaTest {
     @Test
     void shouldReturnCountBooksIs2ThereAreTheAdventuresOfTomSawyerAndRobinHood() {
         Book robinHood = new Book();
-        Book theAdventuresOfTomSawyer = new Book();
+        Book theAdventuresOfTomSawyer = em.find(Book.class, EXPECTED_BOOK_ID);
         robinHood.setName("Robin Hood");
-        theAdventuresOfTomSawyer.setName("The Adventures of Tom Sawyer");
-        bookRepositoryJpa.insert(robinHood);
+        robinHood.setAuthor(theAdventuresOfTomSawyer.getAuthor());
+        robinHood.setGenre(theAdventuresOfTomSawyer.getGenre());
 
+        bookRepositoryJpa.insert(robinHood);
         List<Book> books = bookRepositoryJpa.getAll();
 
         assertThat(books.stream().map(Book::getName)).containsExactlyInAnyOrder(theAdventuresOfTomSawyer.getName(), robinHood.getName());

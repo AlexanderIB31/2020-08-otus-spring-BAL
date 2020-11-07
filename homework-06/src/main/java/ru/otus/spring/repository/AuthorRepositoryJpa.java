@@ -26,20 +26,23 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     @Override
     public void insert(Author author) {
         em.persist(author);
+        em.flush();
     }
 
     @Override
     public Author getById(long id) {
         TypedQuery<Author> query = em.createQuery("select a from Author a where a.id = :id", Author.class);
         query.setParameter("id", id);
-        return query.getSingleResult();
+
+        return getAuthorOrNullIfNotFound(query);
     }
 
     @Override
     public Author getByName(String name) {
         TypedQuery<Author> query = em.createQuery("select a from Author a where a.name = :name", Author.class);
         query.setParameter("name", name);
-        return query.getSingleResult();
+
+        return getAuthorOrNullIfNotFound(query);
     }
 
     @Override
@@ -58,5 +61,12 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     @Override
     public void update(Author newAuthor) {
         em.merge(newAuthor);
+    }
+
+    private Author getAuthorOrNullIfNotFound(TypedQuery<Author> query) {
+        List<Author> result = query.getResultList();
+        if (result == null || result.isEmpty()) return null;
+
+        return result.get(0);
     }
 }

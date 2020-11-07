@@ -10,6 +10,7 @@ import ru.otus.spring.domain.Comment;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.repository.AuthorRepository;
 import ru.otus.spring.repository.BookRepository;
+import ru.otus.spring.repository.CommentRepository;
 import ru.otus.spring.repository.GenreRepository;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class BookServiceImpl implements BookService {
     private final AuthorRepository authorRepositoryJpa;
     private final GenreRepository genreRepositoryJpa;
     private final BookRepository bookRepositoryJpa;
+    private final CommentRepository commentRepositoryJpa;
 
     @Transactional
     @Override
@@ -84,7 +86,8 @@ public class BookServiceImpl implements BookService {
             return null;
         }
 
-        books.get(0).getComments().add(comment);
+        comment.setBook(books.get(0));
+        commentRepositoryJpa.insert(comment);
         return books.get(0);
     }
 
@@ -93,7 +96,9 @@ public class BookServiceImpl implements BookService {
     public StringBuilder print() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Table BOOKS:");
+        stringBuilder.append(System.getProperty("line.separator"));
         stringBuilder.append("ID | NAME | AUTHOR_NAME | GENRE_NAME | COMMENT");
+        stringBuilder.append(System.getProperty("line.separator"));
         bookRepositoryJpa.getAll().forEach(b -> {
             Author author = b.getAuthor();
             Genre genre = b.getGenre();
@@ -107,6 +112,7 @@ public class BookServiceImpl implements BookService {
                     comments.stream()
                             .map(c -> String.format("%d) %s", index.getAndIncrement(), c.getText()))
                             .collect(Collectors.joining(" "))));
+            stringBuilder.append(System.getProperty("line.separator"));
         });
 
         return stringBuilder;

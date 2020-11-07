@@ -108,4 +108,12 @@ public class AuthorRepositoryJpaTest {
 
         assertThat(updatedAuthor).isEqualTo(nAuthor);
     }
+
+    @DisplayName("должен вернуть Null, если не найден автор по имени")
+    @Test
+    void shouldReturnNullIfAuthorIsNotFoundByName() {
+        Author nick = authorRepositoryJpa.getByName("Nick");
+
+        assertThat(nick).isNull();
+    }
 }

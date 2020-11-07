@@ -26,20 +26,23 @@ public class GenreRepositoryJpa implements GenreRepository {
     @Override
     public void insert(Genre genre) {
         em.persist(genre);
+        em.flush();
     }
 
     @Override
     public Genre getById(long id) {
         TypedQuery<Genre> query = em.createQuery("select g from Genre g where g.id = :id", Genre.class);
         query.setParameter("id", id);
-        return query.getSingleResult();
+
+        return getGenreOrNullIfNotFound(query);
     }
 
     @Override
     public Genre getByName(String name) {
         TypedQuery<Genre> query = em.createQuery("select g from Genre g where g.name = :name", Genre.class);
         query.setParameter("name", name);
-        return query.getSingleResult();
+
+        return getGenreOrNullIfNotFound(query);
     }
 
     @Override
@@ -58,5 +61,12 @@ public class GenreRepositoryJpa implements GenreRepository {
     @Override
     public void update(Genre genre) {
         em.merge(genre);
+    }
+
+    private Genre getGenreOrNullIfNotFound(TypedQuery<Genre> query) {
+        List<Genre> result = query.getResultList();
+        if (result == null || result.isEmpty()) return null;
+
+        return result.get(0);
     }
 }

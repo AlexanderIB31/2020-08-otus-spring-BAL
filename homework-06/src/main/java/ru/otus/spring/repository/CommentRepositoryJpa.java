@@ -4,10 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.otus.spring.domain.Comment;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import java.util.List;
 
 @Repository
@@ -31,7 +28,11 @@ public class CommentRepositoryJpa implements CommentRepository {
     public Comment getById(long id) {
         TypedQuery<Comment> query = em.createQuery("select c from Comment c where c.id = :id", Comment.class);
         query.setParameter("id", id);
-        return query.getSingleResult();
+
+        List<Comment> result = query.getResultList();
+        if (result == null || result.isEmpty()) return null;
+
+        return result.get(0);
     }
 
     @Override

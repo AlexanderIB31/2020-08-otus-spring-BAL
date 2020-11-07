@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.otus.spring.domain.Book;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import java.util.List;
 
 @SuppressWarnings({"ConstantConditions", "SqlDialectInspection"})
@@ -27,25 +24,33 @@ public class BookRepositoryJpa implements BookRepository {
     @Override
     public void insert(Book book) {
         em.persist(book);
+        em.flush();
     }
 
     @Override
     public Book getById(long id) {
-        TypedQuery<Book> query = em.createQuery("select b from Book b where b.id = :id", Book.class);
+        EntityGraph<?> entityGraph = em.getEntityGraph("book-entity-graph");
+        TypedQuery<Book> query = em.createQuery("select b from Book b join fetch b.author join fetch b.genre where b.id = :id", Book.class);
         query.setParameter("id", id);
-        return query.getSingleResult();
+        query.setHint("javax.persistence.fetchgraph", entityGraph);
+
+        return getBookOrNullIfNotFound(query);
     }
 
     @Override
     public List<Book> getByName(String name) {
-        TypedQuery<Book> query = em.createQuery("select b from Book b where b.name = :name", Book.class);
+        EntityGraph<?> entityGraph = em.getEntityGraph("book-entity-graph");
+        TypedQuery<Book> query = em.createQuery("select b from Book b join fetch b.author join fetch b.genre where b.name = :name", Book.class);
         query.setParameter("name", name);
+        query.setHint("javax.persistence.fetchgraph", entityGraph);
         return query.getResultList();
     }
 
     @Override
     public List<Book> getAll() {
-        TypedQuery<Book> query = em.createQuery("select b from Book b", Book.class);
+        EntityGraph<?> entityGraph = em.getEntityGraph("book-entity-graph");
+        TypedQuery<Book> query = em.createQuery("select b from Book b join fetch b.author join fetch b.genre", Book.class);
+        query.setHint("javax.persistence.fetchgraph", entityGraph);
         return query.getResultList();
     }
 
@@ -59,5 +64,12 @@ public class BookRepositoryJpa implements BookRepository {
     @Override
     public void update(Book newBook) {
         em.merge(newBook);
+    }
+
+    private Book getBookOrNullIfNotFound(TypedQuery<Book> query) {
+        List<Book> result = query.getResultList();
+        if (result == null || result.isEmpty()) return null;
+
+        return result.get(0);
     }
 }

@@ -13,25 +13,27 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(exclude = "comments")
 @ToString(exclude = "comments")
+@NamedEntityGraph(name = "book-entity-graph",
+        attributeNodes = {@NamedAttributeNode("author"), @NamedAttributeNode("genre")})
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Fetch(FetchMode.JOIN)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
+    @ManyToOne
+    @JoinColumn(name = "author_id", nullable = false)
     private Author author;
 
     @Fetch(FetchMode.JOIN)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "genre_id")
+    @ManyToOne
+    @JoinColumn(name = "genre_id", nullable = false)
     private Genre genre;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "book")
-    @BatchSize(size = 5)
+    @BatchSize(size = 10)
     private List<Comment> comments;
 }

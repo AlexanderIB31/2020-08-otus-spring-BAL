@@ -99,4 +99,12 @@ public class GenreRepositoryJpaTest {
 
         assertThat(updatedGenre).isEqualTo(nGenre);
     }
+
+    @DisplayName("должен вернуть Null, если не найден жанр по названию")
+    @Test
+    void shouldReturnNullIfGenreIsNotFoundByName() {
+        Genre comedy = genreRepositoryJpa.getByName("Comedy");
+
+        assertThat(comedy).isNull();
+    }
 }
